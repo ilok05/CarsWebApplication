@@ -1,9 +1,0 @@
-﻿namespace Cars.API.Dtos
-{
-    public record UserDto(
-        string Id, 
-        string UserName, 
-        string Email, 
-        string Token, 
-        IReadOnlyCollection<string> Roles);
-}

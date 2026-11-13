@@ -5,12 +5,6 @@ using Cars.Application.Common.Behaviors;
 using FluentValidation;
 using MediatR;
 using Cars.API.Middleware;
-using System.Text;
-using Cars.API.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Cars.Domain;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,53 +16,6 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 });
-
-builder.Services.AddIdentityCore<AppUser>(options =>
-{
-    options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = true;
-
-    options.Password.RequiredLength = 8;
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = false;
-})
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<DataContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        var jwtKey = builder.Configuration["Jwt:Key"]
-            ?? throw new InvalidOperationException("Brak Jwt:Key.");
-
-        options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(jwtKey)),
-
-                ClockSkew = TimeSpan.FromSeconds(30),
-            };
-    });
-
-builder.Services.AddAuthorization();
-
-builder.Services.AddScoped<ITokenService, TokenService>();
-
-builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("Smtp"));
-
-builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddCors(options =>
 {
@@ -102,13 +49,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseMiddleware<ApiExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("CorsPolicy");
-app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
 
 app.MapStaticAssets();
 
@@ -131,14 +75,6 @@ catch (Exception ex)
     var logger = services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occurred while migrating the database.");
 }
-
-var userManager = services.GetRequiredService<
-    UserManager<AppUser>>();
-var roleManager = services.GetRequiredService<
-    RoleManager<IdentityRole>>();
-await IdentitySeed.SeedAsync(
-    userManager,
-    roleManager);
 
 
 
