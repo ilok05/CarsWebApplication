@@ -139,7 +139,9 @@ namespace Cars.API.Controllers
 
             if (user is null)
             {
-                return Unauthorized("Nieprawidłowy email lub hasło.");
+                return Unauthorized(new {
+                    message = "Nieprawidłowy email lub hasło." 
+                });
             }
 
             var passwordCorrect = await _userManager
@@ -147,12 +149,18 @@ namespace Cars.API.Controllers
 
             if (!passwordCorrect)
             {
-                return Unauthorized("Nieprawidłowy email lub hasło.");
+                return Unauthorized(new
+                {
+                    message = "Nieprawidłowy email lub hasło."
+                });
             }
 
             if (!user.EmailConfirmed)
             {
-                return Unauthorized("Najpierw potwierdź adres e-mail.");
+                return Unauthorized(new
+                {
+                    message = "Najpierw potwierdź adres e-mail."
+                });
             }
 
             return Ok(await CreateUserDtoAsync(user));
