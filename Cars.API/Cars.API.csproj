@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Cars.Infrastructure\Cars.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\cars\" />
+  </ItemGroup>
+
 </Project>

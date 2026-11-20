@@ -29,6 +29,7 @@
         public DateTime ProductionDate { get; set; }
         public double AverageFuelConsumption { get; set; }
         public BodyType BodyType { get; set; }
-
+        public ICollection<CarPhoto> Photos { get; set; } = new List<CarPhoto>();
+        public ICollection<Feature> Features { get; set; } = new List<Feature>();
     }
 }
